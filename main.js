@@ -11,12 +11,17 @@
 	document.body.appendChild(canvas);
 
 
+	resources.load([
+	    'img/ship.png'
+	]);
+	resources.onReady(init);
+
 	var gameTime;
 
 	// Game state
 	var player = {
 	    pos: [0, 0],
-	    sprite: new Sprite('img/sprites.png', [0, 0], [39, 39], 16, [0, 1])
+	    sprite: new Sprite('img/ship.png', [0, 0], [39, 39], 16, [0, 1])
 	};
 
 	var bullets = [];
@@ -55,9 +60,25 @@
 	}
 
 	function render() {
+	    ctx.fillStyle = terrainPattern;
+	    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		drawRect('#000', 0, 0, H, W);
-		actor(rand(0, H-50), rand(0, W-50));
+	    // Render the player if the game isn't over
+	    if(!isGameOver) {
+	        renderEntity(player);
+	    }
+
+	    renderEntities(bullets);
+	    renderEntities(enemies);
+	    renderEntities(explosions);
+	}
+
+
+	function renderEntity(entity) {
+	    ctx.save();
+	    ctx.translate(entity.pos[0], entity.pos[1]);
+	    entity.sprite.render(ctx);
+	    ctx.restore();
 	}
 
 	function actor(posx, posy) {
@@ -76,42 +97,26 @@
 	}
 
 	function handleInput(dt) {
-    if(input.isDown('DOWN') || input.isDown('s')) {
-        player.pos[1] += playerSpeed * dt;
-    }
+	    if(input.isDown('DOWN') || input.isDown('s')) {
+	        player.pos[1] += playerSpeed * dt;
+	    }
 
-    if(input.isDown('UP') || input.isDown('w')) {
-        player.pos[1] -= playerSpeed * dt;
-    }
+	    if(input.isDown('UP') || input.isDown('w')) {
+	        player.pos[1] -= playerSpeed * dt;
+	    }
 
-    if(input.isDown('LEFT') || input.isDown('a')) {
-        player.pos[0] -= playerSpeed * dt;
-    }
+	    if(input.isDown('LEFT') || input.isDown('a')) {
+	        player.pos[0] -= playerSpeed * dt;
+	    }
 
-    if(input.isDown('RIGHT') || input.isDown('d')) {
-        player.pos[0] += playerSpeed * dt;
-    }
+	    if(input.isDown('RIGHT') || input.isDown('d')) {
+	        player.pos[0] += playerSpeed * dt;
+	    }
 
-    if(input.isDown('SPACE') &&
-       !isGameOver &&
-       Date.now() - lastFire > 100) {
-        var x = player.pos[0] + player.sprite.size[0] / 2;
-        var y = player.pos[1] + player.sprite.size[1] / 2;
+	    if(input.isDown('SPACE')){
 
-        bullets.push({ pos: [x, y],
-                       dir: 'forward',
-                       sprite: new Sprite('img/sprites.png', [0, 39], [18, 8]) });
-        bullets.push({ pos: [x, y],
-                       dir: 'up',
-                       sprite: new Sprite('img/sprites.png', [0, 50], [9, 5]) });
-        bullets.push({ pos: [x, y],
-                       dir: 'down',
-                       sprite: new Sprite('img/sprites.png', [0, 60], [9, 5]) });
-
-
-        lastFire = Date.now();
-    }
-}
+	    }
+	}
 
 	function Player() {
 		this.health;
@@ -165,6 +170,8 @@
 	                  0, 0,
 	                  this.size[0], this.size[1]);
 	}
+
+
 	console.log('test');
 	main();
 
