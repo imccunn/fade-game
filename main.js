@@ -10,11 +10,27 @@
 
 	document.body.appendChild(canvas);
 
+	function loadImageCanvas(dataURL){
+		var imageObj = new Image();
+		imageObj.onload = function() {
+			ctx.drawImage(this, 0, 0);
+		};
 
-	resources.load([
-	    'img/ship.png'
-	]);
-	resources.onReady(init);
+		imageObj.src = dataURL;
+	}
+
+	loadImageCanvas('img/ship.png');
+	// var request = new XMLHttpRequest();
+	// request.open('GET', 'img/ship.png');
+	// request.onreadystatechange = function() {
+	// 	if (request.readyStat == 4) {
+	// 		if(request.status == 200) {
+ //            loadCanvas(request.responseText);
+ //          }
+	// 	}
+
+	// };
+	// request.send(null);
 
 	var gameTime;
 
@@ -47,6 +63,18 @@
 	    requestAnimationFrame(main);
 	}
 
+	function init() {
+	    //terrainPattern = ctx.createPattern(resources.get('img/terrain.png'), 'repeat');
+
+	    // document.getElementById('play-again').addEventListener('click', function() {
+	    //     reset();
+	    // });
+
+	    reset();
+	    lastTime = Date.now();
+	    main();
+	}
+
 	function update(dt) {
 	    gameTime += dt;
 
@@ -59,27 +87,6 @@
 	    //scoreEl.innerHTML = score;
 	}
 
-	function render() {
-	    ctx.fillStyle = terrainPattern;
-	    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-	    // Render the player if the game isn't over
-	    if(!isGameOver) {
-	        renderEntity(player);
-	    }
-
-	    renderEntities(bullets);
-	    renderEntities(enemies);
-	    renderEntities(explosions);
-	}
-
-
-	function renderEntity(entity) {
-	    ctx.save();
-	    ctx.translate(entity.pos[0], entity.pos[1]);
-	    entity.sprite.render(ctx);
-	    ctx.restore();
-	}
 
 	function actor(posx, posy) {
 		drawRect('#00ff00', posx, posy, 50, 50);
@@ -124,56 +131,10 @@
 		this.render;
 	}
 
-	function Sprite(url, pos, size, speed, frames, dir, once) {
-	    this.pos = pos;
-	    this.size = size;
-	    this.speed = typeof speed === 'number' ? speed : 0;
-	    this.frames = frames;
-	    this._index = 0;
-	    this.url = url;
-	    this.dir = dir || 'horizontal';
-	    this.once = once;
-	};
-
-
-	Sprite.prototype.render = function(ctx) {
-	    var frame;
-
-	    if(this.speed > 0) {
-	        var max = this.frames.length;
-	        var idx = Math.floor(this._index);
-	        frame = this.frames[idx % max];
-
-	        if(this.once && idx >= max) {
-	            this.done = true;
-	            return;
-	        }
-	    }
-	    else {
-	        frame = 0;
-	    }
-
-
-	    var x = this.pos[0];
-	    var y = this.pos[1];
-
-	    if(this.dir == 'vertical') {
-	        y += frame * this.size[1];
-	    }
-	    else {
-	        x += frame * this.size[0];
-	    }
-
-	    ctx.drawImage(resources.get(this.url),
-	                  x, y,
-	                  this.size[0], this.size[1],
-	                  0, 0,
-	                  this.size[0], this.size[1]);
-	}
 
 
 	console.log('test');
-	main();
+	init();
 
 
 })();
